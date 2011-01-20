@@ -33,7 +33,7 @@ Put this code in your application delegate:
 	
 	}
 	- (void) mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error{
-		[[CentralViewController sharedInstance] dismissModalViewControllerAnimated:YES];
+		[navigationController dismissModalViewControllerAnimated:YES];
     }
 
 
