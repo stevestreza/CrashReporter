@@ -1,0 +1,49 @@
+CrashReporter
+=============
+This repository is intended to help iOS developers easily put crash report emailing in their application.
+
+### Setup Your Application To Send Crash Reports
+
+Put this code in your application delegate: 
+
+
+
+	- (BOOL) application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+		...
+	
+		if([MFMailComposeViewController canSendMail] && [[CrashReportSender sharedCrashReportSender] hasPendingCrashReport]){
+
+			NSString *crashReport = [[CrashReportSender sharedCrashReportSender] getLastCrashReport];
+			MFMailComposeViewController *vc = [[MFMailComposeViewController alloc] init];
+			[vc setToRecipients:[NSArray arrayWithObject:@"YOUR_EMAIL@HERE.COM"]];
+			[vc setSubject:@"App Crash"];
+			vc.mailComposeDelegate = self;
+			NSData *data = [crashReport dataUsingEncoding:NSUTF8StringEncoding];
+
+			NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+			[formatter setDateStyle:NSDateFormatterShortStyle];
+			[formatter setTimeStyle:NSDateFormatterNoStyle];
+			NSString *date = [formatter stringFromDate:[NSDate date]];
+			[formatter release];
+
+			[vc addAttachmentData:data  mimeType:@"text/xml" fileName:[NSString stringWithFormat:@"%@.crash",date]];
+			[navigationController presentModalViewController:vc animated:YES];
+			[vc release];
+		}
+	
+	}
+	- (void) mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error{
+		[[CentralViewController sharedInstance] dismissModalViewControllerAnimated:YES];
+    }
+
+
+### Making sense of crash report
+
+Once you get the crash report, use symbolicatecrash to symbolize the crash report to make sense out of the file. 
+`./symbolicatecrash "Report.crash"`
+
+### Links
+
+* [Creator's Homepage](http://devinsheaven.com)
+* [Creator's iOS framework](https://github.com/devinross/tapkulibrary)
+* [MacDevCrashReports](http://macdevcrashreports.com/)
